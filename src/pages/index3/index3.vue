@@ -1,6 +1,5 @@
 <template>
     <view class="container">
-        <image class="con-bg-img" src="../../static/images/整个页面渐变背景白@2x.png"></image>
         <view class="navs">
             <view class="nav" @tap="goNav(0)">
                 <image :src="qiniuUrl+'考核@2x.png'"></image>
@@ -239,6 +238,7 @@
 <!--        <form @submit="handlePush" report-submit='true'>-->
 <!--            <button formType="submit">推送消息</button>-->
 <!--        </form>-->
+        <view class="jb-bg"></view>
         <view class="lists" v-if="lists.length">
             <view class="item" v-for="(item, index) in lists" :key="index">
                 <image v-show="item.final_result === 0" class="yinz" :src="qiniuUrl+'为假@2x.png'"></image>
@@ -624,7 +624,7 @@ export default {
 
 <style lang="scss">
 .container {
-    background-color: #f8f8f8;
+    background-color: transparent;
     position: relative;
 
     .con-bg-img {
@@ -637,7 +637,6 @@ export default {
     }
 }
 .gemmologist-container {
-    background-color: #fff;
     position: relative;
     z-index: 10;
 
@@ -849,7 +848,6 @@ export default {
 }
 
 .subscribe {
-    background-color: #fff;
     padding-bottom: 20rpx;
     position: relative;
     z-index: 10;
@@ -1218,10 +1216,14 @@ export default {
     height: 48rpx;
 }
 
+.jb-bg {
+    background-image: linear-gradient(#fefefe, #fdfdfd, #fcfcfc);
+    height: 50rpx;
+}
+
 .lists {
-    // display: none;
-    margin-top: 46rpx;
     padding-bottom: 24rpx;
+    background-image: linear-gradient(#fbfbfb, #fafafa, #f9f9f9);
 
     .item {
         display: flex;
