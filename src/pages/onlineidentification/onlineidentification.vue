@@ -13,7 +13,11 @@
             </view>
         </view>
         <view class="lists">
-            <view class="list" v-for="(item, index) in lists" :key="index" @tap="goTo(item.id)">
+            <view class="list" v-for="(item, index) in lists" :key="index" @tap="goTo(item.id)" :class="{active: !isRequest}">
+                <view class="flicker"></view>
+                <view class="flicker flicker2"></view>
+                <view class="flicker flicker3"></view>
+                <view class="flicker flicker4"></view>
                 <div class="list-inner">
                     <view class="list-left">
                         <image class="head-img" :src="item.avatar"></image>
@@ -43,10 +47,71 @@
         name: "onlineidentification",
         data() {
             return {
-                lists: []
+                lists: [
+                    {
+                        apprs: [
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'}
+                        ],
+                        avatar: '',
+                        name: '鉴定师',
+                        id: 0
+                    },
+                    {
+                        apprs: [
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'}
+                        ],
+                        avatar: '',
+                        name: '鉴定师',
+                        id: 0
+                    },
+                    {
+                        apprs: [
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'}
+                        ],
+                        avatar: '',
+                        name: '鉴定师',
+                        id: 0
+                    },
+                    {
+                        apprs: [
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'}
+                        ],
+                        avatar: '',
+                        name: '鉴定师',
+                        id: 0
+                    },
+                    {
+                        apprs: [
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'},
+                            {name: '测试'}
+                        ],
+                        avatar: '',
+                        name: '鉴定师',
+                        id: 0
+                    }
+                ],
+                isRequest: false
             }
         },
         onLoad() {
+            uni.showLoading({
+                title: '加载中...',
+                icon: 'none'
+            });
             appraiserList({is_list: 1}).then(result => {
                 const arr = [];
                 const keys = Object.keys(result.data);
@@ -75,6 +140,8 @@
                     }
                 });
                 this.lists = arr;
+                uni.hideLoading();
+                this.isRequest = true;
                 console.log(this.lists);
             });
         },
@@ -129,6 +196,47 @@
         background-image: url('../../static/images/鉴定师背景@2x.png');
         background-repeat: no-repeat;
         background-size: cover;
+        position: relative;
+        overflow: hidden;
+
+        &.active {
+            view {
+                color: transparent;
+            }
+            .name, .type {
+                background-color: #f4f3f9;
+            }
+            .flicker {
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 99;
+                width: 30rpx;
+                height: 200%;
+                background: linear-gradient(left,transparent,rgba(255,255,255,0.9),transparent);
+                animation: flicker 2s infinite;
+                transform: translate(-100rpx, -30rpx) rotate(45deg);
+
+                &.flicker2 {
+                    animation: flicker 2s infinite 0.5s;
+                }
+                &.flicker3 {
+                    animation: flicker 2s infinite 1s;
+                }
+                &.flicker4 {
+                    animation: flicker 2s infinite 1.5s;
+                }
+            }
+
+            @keyframes flicker {
+                0% {
+                    transform: translate(-100rpx, -30rpx) rotate(45deg);
+                }
+                100% {
+                    transform: translate(1000rpx, -30rpx) rotate(45deg);
+                }
+            }
+        }
 
         .list-inner {
             display: flex;

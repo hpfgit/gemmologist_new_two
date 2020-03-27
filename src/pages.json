@@ -1,6 +1,18 @@
 {
     "pages": [
         {
+            "path": "pages/onlinechat/onlinechat",
+            "style": {
+                "navigationBarTitleText": "在线聊天"
+            }
+        },
+        {
+            "path": "pages/appointment/appointment",
+            "style": {
+                "navigationBarTitleText": "预约鉴定师"
+            }
+        },
+        {
             "path": "pages/index3/index3",
             "style": {
                 "navigationBarTitleText": "BAN鉴定服务",
@@ -20,21 +32,9 @@
             }
         },
         {
-            "path": "pages/onlinechat/onlinechat",
-            "style": {
-                "navigationBarTitleText": "在线聊天"
-            }
-        },
-        {
             "path": "pages/waiting/waiting",
             "style": {
                 "navigationBarTitleText": "等待用户连接"
-            }
-        },
-        {
-            "path": "pages/appointment/appointment",
-            "style": {
-                "navigationBarTitleText": "预约鉴定师"
             }
         },
         {

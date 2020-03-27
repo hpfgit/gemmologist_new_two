@@ -1119,8 +1119,6 @@ export default {
 }
 
 .login {
-    background-color: #f8f8f8;
-
     .login-btn {
         width: 340rpx;
         height: 88rpx;

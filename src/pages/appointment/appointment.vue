@@ -52,14 +52,14 @@
                     </view>
                     <view class="classList">
                         <view class="list-left">
-                            <view class="select-nav" v-for="(item, index) in selectNav" :key="index" :class="{active: currentNav === index}">{{item.name}}</view>
+                            <view class="select-nav" v-for="(item, index) in selectNav" :key="index" :class="{active: currNavInd === index}" @tap="selectNavFn(index)">{{item.name}}</view>
                         </view>
                         <view class="list-right">
-                            <view class="select-time" v-for="(item, index) in selectTime" :key="index" :class="{active: currentTime === index}">{{item.time}}<image class="checked-img" :src="qiniuUrl+'对号@2x.png'"></image></view>
+                            <view class="select-time" v-for="(item, index) in selectTime" :key="index" :class="{active: currTimeInd === index}" @tap="selectTimeFn(index)">{{item.time}}<image class="checked-img" :src="qiniuUrl+'对号@2x.png'"></image></view>
                         </view>
                     </view>
                 </view>
-                <view class="range-time range-time-checked" :style="{display: showtime ? 'flex' : 'none'}">
+                <view class="range-time range-time-checked" :style="{display: showtime ? 'flex' : 'none'}" @click="onShowDatePicker">
                     <view class="datetime">{{datetime}}</view> <view class="sjx2"></view>
                 </view>
             </view>
@@ -77,6 +77,7 @@
 import {appraiserDetail} from "../../api/publicationappraisal";
 import MxDatePicker from '../../component/mx-datepicker/mx-datepicker.vue';
 import config from "../../config";
+import {formate} from '../../utils/formate';
 const NODE_ENV = process.env.NODE_ENV;
 
 export default {
@@ -102,8 +103,9 @@ export default {
                 { time: '14:00-15:00' },
                 { time: '15:00-16:00' }
             ],
-            currentNav: 1,
-            currentTime: 2
+            currNavInd: 0,
+            currTimeInd: '',
+            datetime: ''
         }
     },
     onLoad(options) {
@@ -129,6 +131,16 @@ export default {
         });
     },
     methods: {
+        selectNavFn(index) {
+            this.currNavInd = index;
+        },
+        selectTimeFn(index) {
+            this.currTimeInd = index;
+            this.datetime = formate(new Date(), this.selectTime[index].time, this.currNavInd);
+            console.log(this.datetime);
+            this.showtime = true;
+            this.isShow = false;
+        },
         onShowDatePicker(){
             this.isShow = true;
             this.showtime = false;
@@ -469,7 +481,7 @@ export default {
         left: 0;
         z-index: 999;
         width: 750rpx;
-        height: 753rpx;
+        height: 550rpx;
         background-color: #ffffff;
         border-radius: 40rpx 40rpx 0rpx 0rpx;
         transition: all .3s;
@@ -504,6 +516,11 @@ export default {
 
         .list-left, .list-right {
             flex: 1;
+        }
+
+        .list-right {
+            height: 428rpx;
+            overflow-y: scroll;
         }
 
         .select-nav {

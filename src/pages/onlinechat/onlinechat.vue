@@ -4,23 +4,19 @@
             <view class="chat-item">
                 <view class="time">2020-03-16 15:45</view>
                 <view class="content">
-                    <view class="appr-cont" @longpress="selectCont(0)">
-                        <view class="text">图片发来</view>
-                        <view class="img-box">
-                            <image class="user-img" src="../../static/images/图层968@2x.png"></image>
-                        </view>
-                        <view class="img-box">
+                    <view v-for="(item, index) in content" :key="index" :class="{'appr-cont': item.source === 'appr', 'user-cont': item.source === 'user', active: isLong}" @longpress="selectCont(index)">
+                        <view class="img-box" v-if="item.source === 'user'">
                             <image class="select-img" :src="qiniuUrl+'勾选@2x.png'"></image>
+                            <image class="select-img" :src="qiniuUrl+'未勾选2@2x.png'"></image>
                         </view>
-                    </view>
-                    <view class="user-cont" @longpress="selectCont(1)">
+                        <view class="text">{{item.text}}</view>
                         <view class="img-box">
-                            <image class="select-img" :src="qiniuUrl+'未勾选@2x.png'"></image>
+                            <image class="user-img" :src="item.head"></image>
                         </view>
-                        <view class="img-box">
-                            <image class="user-img" src="../../static/images/图层968@2x.png"></image>
+                        <view class="img-box" v-if="item.source === 'appr'">
+                            <image class="select-img" :src="qiniuUrl+'勾选@2x.png'"></image>
+                            <image class="select-img" :src="qiniuUrl+'未勾选2@2x.png'"></image>
                         </view>
-                        <view class="text">我想鉴定球鞋</view>
                     </view>
                 </view>
             </view>
@@ -51,7 +47,7 @@
                 <view class="text">生成报告</view>
             </view>
         </view>
-        <chat></chat>
+        <chat @sendMessage="sendMessage"></chat>
     </view>
 </template>
 
@@ -65,13 +61,40 @@ export default {
         return {
             imgUrl: config[NODE_ENV].imgUrl,
             qiniuUrl: config[NODE_ENV].qiniuUrl,
-            currIndex: ''
+            currIndex: '',
+            isLong: false,
+            content: [
+                {
+                    type: 'text',
+                    text: '赶紧的，图片发来',
+                    head: '../../static/images/图层968@2x.png',
+                    source: 'appr'
+                },
+                {
+                    type: 'text',
+                    text: '我去你妈的',
+                    head: '../../static/images/图层968@2x.png',
+                    source: 'user'
+                }
+            ]
         }
+    },
+    onLoad() {
+        uni.connectSocket({
+            url: "wss://106.13.179.65:8080/",
+            success(result) {
+                console.log(result);
+            }
+        });
     },
     methods: {
         selectCont(index) {
             this.currIndex = index;
+            this.isLong = true;
             console.log(123);
+        },
+        sendMessage(msg) {
+            // console.log(msg);
         }
     },
     components: {
@@ -126,6 +149,16 @@ export default {
             padding-left: 22rpx;
             padding-right: 22rpx;
         }
+        .select-img {
+            width: 0;
+            transition: all .1s;
+        }
+        
+        &.active {
+            .select-img {
+                width: 36rpx;
+            }
+        }
     }
     .appr-cont {
         justify-content: flex-end;
@@ -134,8 +167,8 @@ export default {
             background-color: #37374b;
             color: #ffffff;
         }
-        .user-img, .select-img {
-            margin-left: 14rpx;   
+        .user-img, .text {
+            margin-right: 14rpx;   
         }
     }
     .user-cont {
@@ -145,8 +178,8 @@ export default {
             background-color: #ffffff;
             color: #000;
         }
-        .user-img, .select-img {
-            margin-right: 14rpx;
+        .user-img, .text {
+            margin-left: 14rpx;
         }
     }
     .appraisal-result {
@@ -154,7 +187,9 @@ export default {
         justify-content: space-around;
         align-items: center;
         width: 750rpx;
-        height: 206rpx;
+        // height: 206rpx;
+        height: 0;
+        overflow: hidden;
         background-color: #ffffff;
         text-align: center;
         position: fixed;
