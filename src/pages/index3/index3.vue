@@ -96,43 +96,39 @@
             <view class="gemmologist-inner">
                 <view class="gemmologist">
                     <view class="left">
-                        <image class="head-img" src="../../static/images/图层968@2x.png"></image>
+                        <image class="head-img" :src="userInfo.appraisal_avatar"></image>
                         <view class="info">
-                            <view class="name">名字名字</view>
+                            <view class="name">{{userInfo.user_name}}</view>
                             <view class="level-explain"></view>
                         </view>
                     </view>
                     <view class="right">
-                        <view class="signin">
+                        <view class="signin" @tap="userInfo.appraisal_signIn_status === 0 ? signIn : ''">
                             <image class="signin-icon" src="../../static/images/经验icon@2x.png"></image>
-                            签到+10
+                            {{userInfo.appraisal_signIn_status === 0 ? '签到+10' : '已签到'}}
                         </view>
                     </view>
                 </view>
                 <view class="level-progress">
-                    <view class="level-item">
-                        <view class="num">0</view>
-                        <view class="font">普卡</view>
-                        <view class="line"></view>
-                        <view class="line2"></view>
-                    </view>
-                    <view class="level-item">
-                        <view class="num">1000</view>
-                        <view class="font">金卡</view>
-                        <view class="line"></view>
-                        <view class="line2"></view>
-                    </view>
-                    <view class="level-item">
-                        <view class="num">2000</view>
-                        <view class="font">钻卡</view>
-                        <view class="line"></view>
-                        <view class="line2"></view>
-                    </view>
-                    <view class="level-item">
-                        <view class="num">3000</view>
-                        <view class="font">黑卡</view>
-                        <view class="line"></view>
-                        <view class="line2"></view>
+                    <view class="line"></view>
+                    <view class="line2" :style="{width: userInfo.pointprog}"></view>
+                    <view class="item-container">
+                        <view class="level-item">
+                            <view class="num" :class="{active: userInfo.appraisal_level >= 0}">{{userInfo.appraisal_points &lt; 1000 ? userInfo.appraisal_points : 0}}</view>
+                            <view class="font">普卡</view>
+                        </view>
+                        <view class="level-item">
+                            <view class="num" :class="{active: userInfo.appraisal_level >= 1}">{{(userInfo.appraisal_points &gt; 999 && userInfo.appraisal_points &lt; 2000) ? userInfo.appraisal_points : 1000}}</view>
+                            <view class="font">金卡</view>
+                        </view>
+                        <view class="level-item">
+                            <view class="num" :class="{active: userInfo.appraisal_level >= 2}">{{(userInfo.appraisal_points &gt; 1999 && userInfo.appraisal_points &lt; 3000) ? userInfo.appraisal_points : 2000}}</view>
+                            <view class="font">钻卡</view>
+                        </view>
+                        <view class="level-item">
+                            <view class="num" :class="{active: userInfo.appraisal_level >= 3}">{{(userInfo.appraisal_points &gt; 2999) ? userInfo.appraisal_points : 3000}}</view>
+                            <view class="font">黑卡</view>
+                        </view>
                     </view>
                 </view>
             </view>
@@ -316,7 +312,7 @@
 </template>
 
 <script>
-import { getCount, getPost, isAppraiser } from "../../api";
+import { getCount, getPost, isAppraiser, userPoint, signIn, share } from "../../api";
 import { post } from "../../api/Identificationdetails";
 import config from "../../config/index";
 const NODE_ENV = process.env.NODE_ENV;
@@ -340,33 +336,65 @@ export default {
             is_specialty: '',
             is_bar_mask: false,
             page: 1,
-            totalPage: ''
+            totalPage: '',
+            userInfo: {},
+            appraisal_level: ['普卡', '金卡', '钻卡', '黑卡'],
+            appraisal_points: 0,
+            pointprog: ''
         };
     },
     onLoad() {
         this.getData();
     },
-    onShareAppMessage(result) {
-        if (result.from === "button") {
-            console.log(result.target);
-        }
-        return {
-            title: "BAN鉴定服务小程序",
-            path: "/pages/index3/index3",
-            imageUrl: "",
-            desc: "",
-            success() {
-                uni.showToast({
-                    title: "分享成功",
-                    icon: "none"
-                });
-            }
-        };
-    },
     onPullDownRefresh() {
         this.getData();
     },
+    onShareAppMessage() {
+        share().then((result) => {
+            console.log(result);
+            if (result.data.status === 401) {
+                uni.showToast({
+                    title: result.data.message,
+                    icon: 'none'
+                });
+            } else {
+                this.getPoint();
+                return {
+                    title: '鉴定小程序',
+                    path: 'pages/index3/index3',
+                    imageUrl: this.qiniuUrl + "球鞋2@2x.png",
+                    desc: '鉴定小程序',
+                    content: '鉴定小程序',
+                    success(){
+                        uni.showToast({
+                            title:'分享成功',
+                            icon: 'none'
+                        })
+                    },
+                    fail(){
+                        uni.showToast({
+                            title:'分享失败',
+                            icon:'none'
+                        })
+                    }
+                }
+            }
+        }).catch(error => {console.log(error)});
+    },
     methods: {
+        signIn() {
+            signIn().then(result => {
+                console.log(result);
+                this.getPoint().then(() => {
+                    uni.showToast({
+                        title: '签到成功',
+                        icon: 'none'
+                    });
+                });
+            }).catch(error => {
+                console.log(error);
+            });
+        },
         mask() {
             this.isShow = !this.isShow;
         },
@@ -415,6 +443,19 @@ export default {
                 url: '/pages/zy-publicationappraisal4/zy-publicationappraisal4?is_specialty='+is_specialty+'&brand_id='+brand_id+'&appraiser_id='+user_id+'&id='+id+'&type='+type
             });
         },
+        getPoint() {
+            return new Promise((resolve) => {
+                userPoint().then(result => {
+                    console.log(result);
+                    this.userInfo = result.data;
+                    this.userInfo.appraisal_avatar = this.qiniuUrl + result.data.appraisal_avatar;
+                    this.userInfo.pointprog = parseInt((result.data.appraisal_points / 3000) * 100) + '%';
+                    resolve();
+                }).catch(error => {
+                    console.log(error);
+                });
+            });
+        },
         getData() {
             this.isLogin = !!uni.getStorageSync('token');
             uni.showLoading({
@@ -434,6 +475,7 @@ export default {
                     this.isAppraiser = is_appraiser;
                     this.is_appraisal_admin = is_appraisal_admin;
                 });
+                this.getPoint();
                 getPost({
                     page: this.page,
                     limit: 10
@@ -701,34 +743,38 @@ export default {
     }
 }
 .level-progress {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 24rpx;
+    position: relative;
 
+    .item-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 24rpx;
+    }
+    .line,.line2 {
+        height: 6rpx;
+        position: absolute;
+        left: 0;
+        top: 9rpx;
+        border-radius: 3rpx;
+    }
+
+    .line {
+        width: 100%;
+        background-color: rgba(196, 194, 213, 1);
+        z-index: 8;
+    }
+    .line2 {
+        width: 50%;
+        background-color: rgba(228, 185, 124, 1);
+        z-index: 9;
+    }
     .level-item {
-        position: relative;
-        text-align: center;
-        
         .font {
             font-size: 20rpx;
             color: rgba(228, 185, 124, 1);
             margin-top: 8rpx;
         }
-
-        &:nth-of-type(1) {
-            .num {
-                width: 24rpx;
-            }
-            .line {
-                left: 24rpx;
-                width: 172rpx;
-            }
-        }
-        &:nth-of-type(4) {
-            .line,.line2 {
-                width: 0;
-            }
-        }
+        
         .num {
             font-size: 14rpx;
             color: #fff;
@@ -736,30 +782,13 @@ export default {
             width: 40rpx;
             height: 24rpx;
             line-height: 26rpx;
-            background-color: rgba(228, 185, 124, 1);
+            background-color: #c4c2d5;
             border-radius: 12rpx;
             position: relative;
             z-index: 10;
-        }
-        .line {
-            width: 170rpx;
-            height: 6rpx;
-            background-color: rgba(196, 194, 213, 1);
-            border-radius: 3rpx;
-            position: absolute;
-            top: 10rpx;
-            left: 40rpx;
-            z-index: 8;
-        }
-        .line2 {
-            width: 62rpx;
-            height: 6rpx;
-            background-color: rgba(228, 185, 124, 1);
-            border-radius: 3rpx;
-            position: absolute;
-            top: 10rpx;
-            left: 0;
-            z-index: 9;
+            &.active {
+                background-color: rgba(228, 185, 124, 1);
+            }
         }
     }
 }

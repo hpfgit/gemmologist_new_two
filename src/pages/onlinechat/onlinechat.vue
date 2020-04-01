@@ -6,16 +6,16 @@
                 <view class="content">
                     <view v-for="(item, index) in content" :key="index" :class="{'appr-cont': item.source === 'appr', 'user-cont': item.source === 'user', active: isLong}" @longpress="selectCont(index)">
                         <view class="img-box" v-if="item.source === 'user'">
-                            <image class="select-img" :src="qiniuUrl+'勾选@2x.png'"></image>
-                            <image class="select-img" :src="qiniuUrl+'未勾选2@2x.png'"></image>
+                            <image class="select-img" @tap="selectText(index)" :style="{display: item.selected ? 'block' : 'none'}" :src="qiniuUrl+'勾选@2x.png'"></image>
+                            <image class="select-img" @tap="selectText(index)" :style="{display: item.selected ? 'none' : 'block'}" :src="qiniuUrl+'未勾选@2x.png'"></image>
                         </view>
                         <view class="text">{{item.text}}</view>
                         <view class="img-box">
                             <image class="user-img" :src="item.head"></image>
                         </view>
                         <view class="img-box" v-if="item.source === 'appr'">
-                            <image class="select-img" :src="qiniuUrl+'勾选@2x.png'"></image>
-                            <image class="select-img" :src="qiniuUrl+'未勾选2@2x.png'"></image>
+                            <image class="select-img" @tap="selectText(index)" :style="{display: item.selected ? 'block' : 'none'}" :src="qiniuUrl+'勾选@2x.png'"></image>
+                            <image class="select-img" @tap="selectText(index)" :style="{display: item.selected ? 'none' : 'block'}" :src="qiniuUrl+'未勾选@2x.png'"></image>
                         </view>
                     </view>
                 </view>
@@ -68,26 +68,31 @@ export default {
                     type: 'text',
                     text: '赶紧的，图片发来',
                     head: '../../static/images/图层968@2x.png',
-                    source: 'appr'
+                    source: 'appr',
+                    selected: false
                 },
                 {
                     type: 'text',
                     text: '我去你妈的',
                     head: '../../static/images/图层968@2x.png',
-                    source: 'user'
+                    source: 'user',
+                    selected: false
                 }
             ]
         }
     },
     onLoad() {
-        uni.connectSocket({
-            url: "wss://106.13.179.65:8080/",
-            success(result) {
-                console.log(result);
-            }
-        });
+        // uni.connectSocket({
+        //     url: "wss://106.13.179.65:8080/",
+        //     success(result) {
+        //         console.log(result);
+        //     }
+        // });
     },
     methods: {
+        selectText(index) {
+            this.content[index].selected = !this.content[index].selected;
+        },
         selectCont(index) {
             this.currIndex = index;
             this.isLong = true;

@@ -42,6 +42,7 @@ export default {
         },
         sendMsg() {
             this.msg = '';
+            this.isInput = false;
             console.log('发送消息');
         }
     }
